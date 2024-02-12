@@ -1,13 +1,19 @@
 {-# LANGUAGE
-FunctionalDependencies
+FlexibleInstances
+, FunctionalDependencies
 , MultiParamTypeClasses
+, PolyKinds
 , QuantifiedConstraints
 , RankNTypes
+, TypeOperators
 , UndecidableInstances
+, UndecidableSuperClasses
 #-}
 
 module Control.Constrained.Transformer
-  ( CFunctor (cmap)
+  ( Unconstrained
+  , (:&&)
+  , CFunctor (cmap)
   , CTrans (creturn)
   , CMonad (cjoin, cbind)
   , CCotrans (cextract)
@@ -20,6 +26,12 @@ module Control.Constrained.Transformer
   , C1Comonad (diagonal, expand)
   , C1Adjoint (crush)
   ) where
+
+class Unconstrained t
+instance Unconstrained t
+
+class (c t, d t) => (c :&& d) t
+instance (c t, d t) => (c :&& d) t
 
 class (forall a. c a => d (f a))
   => CFunctor c d f | f -> c, f -> d where
