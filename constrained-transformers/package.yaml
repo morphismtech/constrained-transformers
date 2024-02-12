@@ -16,6 +16,11 @@ description:         Please see the README on GitHub at <https://github.com/morp
 
 dependencies:
 - base >= 4.7 && < 5
+- comonad
+- free
+- kan-extensions
+- mtl
+- transformers
 
 ghc-options:
 - -Wall

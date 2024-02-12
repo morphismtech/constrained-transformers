@@ -1,5 +1,6 @@
 {-# LANGUAGE
-FlexibleInstances
+DefaultSignatures
+, FlexibleInstances
 , FunctionalDependencies
 , MultiParamTypeClasses
 , PolyKinds
@@ -38,11 +39,15 @@ class (forall a. c a => d (f a))
     -- prop> cmap id = id
     -- prop> cmap (g . f) = cmap g . cmap f
     cmap :: (c a, c b) => (a -> b) -> f a -> f b
+    default cmap :: Functor f => (a -> b) -> f a -> f b
+    cmap = fmap
 
 class CFunctor c d f
   => CTrans c d f where
     -- prop> cmap f . creturn = creturn . f
     creturn :: c a => a -> f a
+    default creturn :: Applicative f => a -> f a
+    creturn = pure
 
 class (CTrans c d f, forall a. d a => c a)
   => CMonad c d f where
