@@ -1,0 +1,32 @@
+name:                constrained-transformers
+version:             0.1.0.0
+github:              "morphismtech/constrained-transformers"
+license:             BSD-3-Clause
+author:              "Eitan Chatav"
+maintainer:          "eitan.chatav@gmail.com"
+copyright:           "2024 Eitan Chatav"
+
+extra-source-files:
+- README.md
+- CHANGELOG.md
+
+synopsis:            Constrained Transformers - The Forgetful/Free Adjunction
+category:            Control
+description:         Please see the README on GitHub at <https://github.com/morphismtech/constrained-transformers#readme>
+
+dependencies:
+- base >= 4.7 && < 5
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Widentities
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-export-lists
+- -Wmissing-home-modules
+- -Wpartial-fields
+- -Wredundant-constraints
+
+library:
+  source-dirs: src
