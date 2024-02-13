@@ -21,20 +21,22 @@ module Control.Constrained.Transformer
   , Forgetful
   , CFunctor (cmap)
   , CTrans (creturn)
-  , CFoldable (cram)
-  , CFree, cjoin, cbind, cextract, cduplicate, cextend, toCFree
+  , CFoldable (cram), cjoin, cbind, cextract
+  , CFree, cduplicate, cextend, toCFree
   , C1Homomorphism (trans)
   , C1Functor (hoist)
   , C1Trans (lift)
-  , C1Foldable (crush), lower
-  , C1Free, squash, embed, copulate, expand, toC1Free
+  , C1Foldable (crush), squash, embed, lower
+  , C1Free, copulate, expand, toC1Free
   ) where
 
 import Control.Comonad
-import qualified Control.Comonad.Trans.Class as Comonad
+import qualified Control.Comonad.Trans.Class as Trans
 import Control.Monad.Codensity
+import Control.Monad.Cont
 import qualified Control.Monad.Morph as Morph
 import Control.Monad.State (MonadState(..))
+import qualified Control.Monad.Trans.Class as Trans
 import qualified Control.Monad.Trans.State.Lazy as State
 import qualified Control.Monad.Trans.State.Strict as State'
 import qualified Data.Set as Set
@@ -112,6 +114,8 @@ instance C1Homomorphism Monad (State'.StateT s) where trans = hoist
 instance C1Homomorphism Monad (State.StateT s) where trans = hoist
 instance C1Homomorphism Monad Codensity where
   trans f (Codensity k) = Codensity (f . k)
+instance C1Homomorphism MonadCont (ContT r) where
+  trans f (ContT k) = ContT (f . k)
 
 class (C1Homomorphism c t, forall f. c f => d (t f))
   => C1Functor c d t | t -> d where
@@ -133,11 +137,12 @@ instance C1Functor Monad (MonadState s) (State.StateT s)
 class C1Homomorphism c t => C1Trans c t where
   -- prop> trans f . lift = lift . f
   lift :: c f => f a -> t f a
-  default lift :: (Morph.MonadTrans t, Monad f) => f a -> t f a
-  lift = Morph.lift
+  default lift :: (Trans.MonadTrans t, Monad f) => f a -> t f a
+  lift = Trans.lift
 instance C1Trans Monad (State'.StateT s)
 instance C1Trans Monad (State.StateT s)
-instance C1Trans Monad Codensity where
+instance C1Trans Monad Codensity
+instance C1Trans MonadCont (ContT r)
 
 class
   ( C1Homomorphism c t
@@ -148,10 +153,10 @@ class
       => (forall x. f x -> g x)
       -> t f a -> g a
     default crush
-      :: (Comonad.ComonadTrans t, Comonad f)
+      :: (Trans.ComonadTrans t, Comonad f)
       => (forall x. f x -> g x)
       -> t f a -> g a
-    crush f t = f (Comonad.lower t)
+    crush f t = f (Trans.lower t)
 instance C1Foldable Monad (MonadState s) (State'.StateT s) where
   crush f st = do
     s <- get
