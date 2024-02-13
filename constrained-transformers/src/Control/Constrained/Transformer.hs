@@ -73,7 +73,6 @@ instance CTrans Ord (Ord :&& Monoid) Set where creturn = Set.singleton
 class CFunctor c d f
   => CFoldable c d f where
     -- prop> cram f . single = f
-    -- prop> cextract = cram id
     cram :: (c a, d b) => (a -> b) -> f a -> b
 instance CFoldable Unconstrained Monoid [] where cram = foldMap
 instance CFoldable Ord (Ord :&& Monoid) Set where cram = foldMap
@@ -81,6 +80,7 @@ instance CFoldable Ord (Ord :&& Monoid) Set where cram = foldMap
 cbind :: (CFoldable c d f, c a, c b) => (a -> f b) -> f a -> f b
 cbind = cram
 
+-- prop> cextract = cram id
 cextract :: (Forgetful d c, CFoldable c d f, d a) => f a -> a
 cextract = cram id
 
@@ -144,6 +144,7 @@ instance C1Trans Monad (State.StateT s)
 instance C1Trans Monad Codensity
 instance C1Trans MonadCont (ContT r)
 
+-- prop> lower . trans f = f . lower
 class
   ( C1Homomorphism c t
   , forall f. c f => d (t f)
@@ -172,6 +173,7 @@ instance C1Foldable Monad (MonadState s) (State.StateT s) where
 instance C1Foldable Monad Monad Codensity where
   crush f (Codensity k) = f (k return)
 
+-- prop> embed = crush
 embed
   :: (C1Foldable c d t, c f, c g)
   => (forall x. f x -> t g x)
@@ -179,7 +181,6 @@ embed
 embed = crush
 
 -- prop> lower = crush id
--- prop> lower . trans f = f . lower
 lower
   :: (Forgetful d c, C1Foldable c d t, d f)
   => t f a -> f a
@@ -192,6 +193,7 @@ squash
 squash = lower
 
 -- prop> crush f . lift = f
+-- prop> hoist f . lift = lift . f
 type C1Free c d free =
   ( C1Functor c d free
   , C1Trans c free
