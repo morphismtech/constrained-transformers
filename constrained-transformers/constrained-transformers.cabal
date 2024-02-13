@@ -43,6 +43,7 @@ library
     , kan-extensions
     , mmorph
     , mtl
+    , text
     , transformers
     , unordered-containers
     , vector
